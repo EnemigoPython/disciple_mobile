@@ -17,7 +17,31 @@ Future<Database> databaseConnection() async {
     onCreate: (db, version) {
       // Run the CREATE TABLE statement on the database.
       return db.execute(
-        'CREATE TABLE dogs(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)',
+        '''
+        CREATE TABLE manifest(
+          activity_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+          activity_name TEXT, 
+          date_added TEXT, 
+          category_id INTEGER, 
+          target_minutes INTEGER
+        );
+        CREATE TABLE category(
+          category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+          category_name TEXT, 
+          category_colour TEXT
+        );
+        CREATE TABLE activity_log(
+          log_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+          activity_id INTEGER, 
+          date_logged TEXT, 
+          minutes INTEGER
+        );
+        CREATE TABLE app_settings(
+          setting_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+          setting_name TEXT, 
+          setting_value TEXT
+        );
+        ''',
       );
     },
     // Set the version. This executes the onCreate function and provides a
@@ -26,7 +50,25 @@ Future<Database> databaseConnection() async {
   );
 }
 
-class Manifest {
+class DatabaseRow {
+  final Map<String, dynamic> columns;
+
+  DatabaseRow(this.columns);
+
+  String camelCaseToSnakeCase(String input) {
+    return input.replaceAllMapped(
+      RegExp(r'[A-Z]'),
+      (match) => '_${match.group(0)!.toLowerCase()}',
+    );
+  }
+
+  @override
+  String toString() {
+    return '';
+  }
+}
+
+class Manifest extends DatabaseRow {
   final int activityId;
   final String activityName;
   final DateTime dateAdded;
@@ -39,10 +81,17 @@ class Manifest {
     this.dateAdded, 
     this.categoryId, 
     this.targetMinutes
-  );
+  ) : 
+  super({
+    'activity_id': activityId, 
+    'activity_name': activityName, 
+    'date_added': dateAdded, 
+    'category_id': categoryId, 
+    'target_minutes': targetMinutes
+  });
 }
 
-class Category {
+class Category extends DatabaseRow {
   final int categoryId;
   final String categoryName;
   final String categoryColour;
@@ -51,10 +100,15 @@ class Category {
     this.categoryId, 
     this.categoryName, 
     this.categoryColour
-  );
+  ) : 
+  super({
+    'category_id': categoryId, 
+    'category_name': categoryName, 
+    'category_colour': categoryColour
+  });
 }
 
-class ActivityLog {
+class ActivityLog extends DatabaseRow {
   final int logId;
   final int activityId;
   final DateTime dateLogged;
@@ -65,10 +119,16 @@ class ActivityLog {
     this.activityId, 
     this.dateLogged, 
     this.minutes
-  );
+  ) : 
+  super({
+    'log_id': logId, 
+    'activity_id': activityId, 
+    'date_logged': dateLogged, 
+    'minutes': minutes
+  });
 }
 
-class AppSettings {
+class AppSettings extends DatabaseRow {
   final int settingId;
   final String settingName;
   final String settingValue;
@@ -77,12 +137,10 @@ class AppSettings {
     this.settingId, 
     this.settingName, 
     this.settingValue
-  );
-}
-
-String camelCaseToSnakeCase(String input) {
-  return input.replaceAllMapped(
-    RegExp(r'[A-Z]'),
-    (match) => '_${match.group(0)!.toLowerCase()}',
-  );
+  ) : 
+  super({
+    'setting_id': settingId, 
+    'setting_name': settingName, 
+    'setting_value': settingValue
+  });
 }
