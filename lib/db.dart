@@ -65,13 +65,14 @@ class SqfliteHelper {
     );
   }
 
-  Future<List<Map<String, dynamic>>> select(DatabaseQuery query) async {
+  Future<List<DatabaseRow>> select(DatabaseQuery query) async {
     Database db = await database;
-    return await db.query(
+    List<Map<String, dynamic>> rows = await db.query(
       query.tableName, 
       where: query.whereStatement, 
       whereArgs: query.whereArgs
     );
+    return rows.map((row) => DatabaseRow.fromMap(row)).toList();
   }
 
   Future<int> insert(DatabaseRow row) async {
@@ -94,7 +95,8 @@ class SqfliteHelper {
       row.tableName, 
       row.columns, 
       where: query.whereStatement, 
-      whereArgs: query.whereArgs
+      whereArgs: query.whereArgs,
+      conflictAlgorithm: ConflictAlgorithm.replace
     );
   }
 }
@@ -107,11 +109,15 @@ class DatabaseQuery {
   DatabaseQuery(this.tableName, this.whereStatement, this.whereArgs);
 }
 
-class DatabaseRow {
+abstract class DatabaseRow {
   final String tableName;
   final Map<String, dynamic> columns;
 
   DatabaseRow(this.tableName, this.columns);
+
+  factory DatabaseRow.fromMap(Map<String, dynamic> map) {
+    throw UnimplementedError('fromMap() must be implemented in subclass.');
+  }
 }
 
 class Manifest extends DatabaseRow {
@@ -135,6 +141,17 @@ class Manifest extends DatabaseRow {
     'category_id': categoryId, 
     'target_minutes': targetMinutes
   });
+
+  @override
+  factory Manifest.fromMap(Map<String, dynamic> map) {
+    return Manifest(
+      map['activity_id'], 
+      map['activity_name'], 
+      DateTime.parse(map['date_added']), 
+      map['category_id'], 
+      map['target_minutes']
+    );
+  }
 }
 
 class Category extends DatabaseRow {
@@ -152,6 +169,15 @@ class Category extends DatabaseRow {
     'category_name': categoryName, 
     'category_colour': categoryColour
   });
+
+  @override
+  factory Category.fromMap(Map<String, dynamic> map) {
+    return Category(
+      map['category_id'], 
+      map['category_name'], 
+      map['category_colour']
+    );
+  }
 }
 
 class ActivityLog extends DatabaseRow {
@@ -172,6 +198,16 @@ class ActivityLog extends DatabaseRow {
     'date_logged': dateLogged, 
     'minutes': minutes
   });
+
+  @override
+  factory ActivityLog.fromMap(Map<String, dynamic> map) {
+    return ActivityLog(
+      map['log_id'], 
+      map['activity_id'], 
+      DateTime.parse(map['date_logged']), 
+      map['minutes']
+    );
+  }
 }
 
 class AppSettings extends DatabaseRow {
@@ -189,11 +225,20 @@ class AppSettings extends DatabaseRow {
     'setting_name': settingName, 
     'setting_value': settingValue
   });
+
+  @override
+  factory AppSettings.fromMap(Map<String, dynamic> map) {
+    return AppSettings(
+      map['setting_id'], 
+      map['setting_name'], 
+      map['setting_value']
+    );
+  }
 }
 
 class Streak extends DatabaseRow {
   final String streakName;
-  final String streakValue;
+  final int streakValue;
 
   Streak(
     this.streakName, 
@@ -203,4 +248,12 @@ class Streak extends DatabaseRow {
     'streak_name': streakName, 
     'streak_value': streakValue
   });
+
+  @override
+  factory Streak.fromMap(Map<String, dynamic> map) {
+    return Streak(
+      map['streak_name'], 
+      map['streak_value']
+    );
+  }
 }
