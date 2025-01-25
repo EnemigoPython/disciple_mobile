@@ -16,12 +16,12 @@ class HomeRoute extends StatefulWidget {
 }
 
 class _HomeRouteState extends State<HomeRoute> {
-  late SqfliteHelper helper;
+  late SqfliteHelper database;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    helper = Provider.of<SqfliteHelper>(context, listen: false);
+    database = Provider.of<SqfliteHelper>(context, listen: false);
   }
 
   @override

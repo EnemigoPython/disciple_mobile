@@ -25,7 +25,6 @@ class SqfliteHelper {
       // constructed for each platform.
       join(await getDatabasesPath(), 'disciple.db'),
       onCreate: (db, version) {
-        // Run the CREATE TABLE statement on the database.
         return db.execute(
           '''
           CREATE TABLE manifest(
@@ -51,6 +50,12 @@ class SqfliteHelper {
             setting_name TEXT, 
             setting_value TEXT
           );
+          CREATE TABLE streak(
+            streak_name TEXT, 
+            streak_value INTEGER
+          );
+          INSERT INTO streak (streak_name, streak_value) VALUES ('Current streak', 0);
+          INSERT INTO streak (streak_name, streak_value) VALUES ('Best streak', 0);
           ''',
         );
       },
@@ -59,25 +64,54 @@ class SqfliteHelper {
       version: 1,
     );
   }
-}
 
-
-class DatabaseRow {
-  final Map<String, dynamic> columns;
-
-  DatabaseRow(this.columns);
-
-  String camelCaseToSnakeCase(String input) {
-    return input.replaceAllMapped(
-      RegExp(r'[A-Z]'),
-      (match) => '_${match.group(0)!.toLowerCase()}',
+  Future<List<Map<String, dynamic>>> select(DatabaseQuery query) async {
+    Database db = await database;
+    return await db.query(
+      query.tableName, 
+      where: query.whereStatement, 
+      whereArgs: query.whereArgs
     );
   }
 
-  @override
-  String toString() {
-    return '';
+  Future<int> insert(DatabaseRow row) async {
+    Database db = await database;
+    return await db.insert(row.tableName, row.columns);
   }
+
+  Future<int> delete(DatabaseQuery query) async {
+    Database db = await database;
+    return await db.delete(
+      query.tableName, 
+      where: query.whereStatement, 
+      whereArgs: query.whereArgs
+    );
+  }
+
+  Future<int> update(DatabaseRow row, DatabaseQuery query) async {
+    Database db = await database;
+    return await db.update(
+      row.tableName, 
+      row.columns, 
+      where: query.whereStatement, 
+      whereArgs: query.whereArgs
+    );
+  }
+}
+
+class DatabaseQuery {
+  final String tableName;
+  final String whereStatement;
+  final List<String> whereArgs;
+
+  DatabaseQuery(this.tableName, this.whereStatement, this.whereArgs);
+}
+
+class DatabaseRow {
+  final String tableName;
+  final Map<String, dynamic> columns;
+
+  DatabaseRow(this.tableName, this.columns);
 }
 
 class Manifest extends DatabaseRow {
@@ -94,7 +128,7 @@ class Manifest extends DatabaseRow {
     this.categoryId, 
     this.targetMinutes
   ) : 
-  super({
+  super('manifest', {
     'activity_id': activityId, 
     'activity_name': activityName, 
     'date_added': dateAdded, 
@@ -113,7 +147,7 @@ class Category extends DatabaseRow {
     this.categoryName, 
     this.categoryColour
   ) : 
-  super({
+  super('category', {
     'category_id': categoryId, 
     'category_name': categoryName, 
     'category_colour': categoryColour
@@ -132,7 +166,7 @@ class ActivityLog extends DatabaseRow {
     this.dateLogged, 
     this.minutes
   ) : 
-  super({
+  super('activity_log', {
     'log_id': logId, 
     'activity_id': activityId, 
     'date_logged': dateLogged, 
@@ -150,9 +184,23 @@ class AppSettings extends DatabaseRow {
     this.settingName, 
     this.settingValue
   ) : 
-  super({
+  super('app_settings', {
     'setting_id': settingId, 
     'setting_name': settingName, 
     'setting_value': settingValue
+  });
+}
+
+class Streak extends DatabaseRow {
+  final String streakName;
+  final String streakValue;
+
+  Streak(
+    this.streakName, 
+    this.streakValue
+  ) : 
+  super('streak', {
+    'streak_name': streakName, 
+    'streak_value': streakValue
   });
 }
