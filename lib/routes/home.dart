@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../db.dart';
 import '../routes/log.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/date_picker.dart';
 import '../widgets/radar.dart';
 import '../widgets/streak_indicator.dart';
 
-class HomeRoute extends StatelessWidget {
+class HomeRoute extends StatefulWidget {
   const HomeRoute({super.key});
+
+  @override
+  State<HomeRoute> createState() => _HomeRouteState();
+}
+
+class _HomeRouteState extends State<HomeRoute> {
+  late SqfliteHelper helper;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    helper = Provider.of<SqfliteHelper>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
