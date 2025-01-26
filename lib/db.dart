@@ -21,15 +21,16 @@ class DatabaseService {
     // Importing 'package:flutter/widgets.dart' is required.
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Set the path to the database. Note: Using the `join` function from the
-    // `path` package is best practice to ensure the path is correctly
-    // constructed for each platform.
+    // Default web database path
     String path = 'disciple.db';
 
     if (kIsWeb) {
       // Change default factory on the web
       databaseFactory = databaseFactoryFfiWeb;
     } else {
+      // Set the path to the database. Note: Using the `join` function from the
+      // `path` package is best practice to ensure the path is correctly
+      // constructed for each platform.
       path = join(await getDatabasesPath(), 'disciple.db');
     }
     // Open the database and store the reference.
@@ -86,7 +87,7 @@ class DatabaseService {
       where: query.whereStatement, 
       whereArgs: query.whereArgs
     );
-    return rows.map((row) => DatabaseRow.fromMap(row)).toList();
+    return rows.map((row) => DatabaseRow.fromMap( query.tableName, row)).toList();
   }
 
   Future<int> insert(DatabaseRow row) async {
@@ -133,9 +134,20 @@ abstract class DatabaseRow {
 
   DatabaseRow(this.tableName, this.columns);
 
-  // TODO: this implementation isn't working in query; need to rethink
-  factory DatabaseRow.fromMap(Map<String, dynamic> map) {
-    throw UnimplementedError('fromMap() must be implemented in subclass.');
+  factory DatabaseRow.fromMap(String tableName, Map<String, dynamic> map) {
+    switch (tableName) {
+      case 'manifest':
+        return Manifest.fromMap(map);
+      case 'category':
+        return Category.fromMap(map);
+      case 'activity_log':
+        return ActivityLog.fromMap(map);
+      case 'app_settings':
+        return AppSettings.fromMap(map);
+      case 'streak':
+        return Streak.fromMap(map);
+    }
+    throw UnsupportedError('Unknown table name: ${map['table_name']}');
   }
 }
 

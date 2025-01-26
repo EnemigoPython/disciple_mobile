@@ -19,22 +19,31 @@ class _HomeRouteState extends State<HomeRoute> {
   late DatabaseService databaseService;
   int? currentStreakValue;
   int? bestStreakValue;
+  DateTime selectedDate = DateTime.now();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+   @override
+  void initState() {
+    super.initState();
     databaseService = Provider.of<DatabaseService>(context, listen: false);
     getStreaks();
   }
 
-  //  @override
-  // void initState() {
-  //   super.initState();
-  //   getStreaks();
-  // }
+  void updateSelectedDate(DateTime newDate) {
+    setState(() => selectedDate = newDate);
+    print(selectedDate);
+  }
 
-  Future<List<DatabaseRow>> getStreaks() async {
-    return await databaseService.select(DatabaseQuery(tableName: 'streak'));
+  Future<void> getStreaks() async {
+    List<DatabaseRow> rows = await databaseService.select(DatabaseQuery(tableName: 'streak'));
+    List<Streak> streaks = rows.cast<Streak>();
+    setState(() {
+      currentStreakValue = streaks.where(
+        (streak) => streak.streakName == 'Current streak'
+      ).first.streakValue;
+      bestStreakValue = streaks.where(
+        (streak) => streak.streakName == 'Best streak'
+      ).first.streakValue;
+    });
   }
 
   @override
@@ -73,7 +82,7 @@ class _HomeRouteState extends State<HomeRoute> {
                 ),
                 Flexible(
                   fit: FlexFit.tight,
-                  child: DatePicker(),
+                  child: DatePicker(onUpdateDate: updateSelectedDate),
                 )
               ],
             ),
