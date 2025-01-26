@@ -152,11 +152,11 @@ abstract class DatabaseRow {
 }
 
 class Manifest extends DatabaseRow {
-  final int activityId;
+  final int? activityId;
   final String activityName;
   final DateTime dateAdded;
-  final int categoryId;
-  final int targetMinutes;
+  final int? categoryId;
+  final int? targetMinutes;
 
   Manifest(
     this.activityId, 
@@ -168,7 +168,7 @@ class Manifest extends DatabaseRow {
   super('manifest', {
     'activity_id': activityId, 
     'activity_name': activityName, 
-    'date_added': dateAdded, 
+    'date_added': dateAdded.toString(), 
     'category_id': categoryId, 
     'target_minutes': targetMinutes
   });
@@ -226,7 +226,7 @@ class ActivityLog extends DatabaseRow {
   super('activity_log', {
     'log_id': logId, 
     'activity_id': activityId, 
-    'date_logged': dateLogged, 
+    'date_logged': dateLogged.toString(), 
     'minutes': minutes
   });
 

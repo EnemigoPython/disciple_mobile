@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../db.dart';
+import '../model/db.dart';
 import '../routes/log.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/date_picker.dart';
@@ -20,17 +20,19 @@ class _HomeRouteState extends State<HomeRoute> {
   int? currentStreakValue;
   int? bestStreakValue;
   DateTime selectedDate = DateTime.now();
+  List<Manifest> activities = [];
+  List<ActivityLog> activityLogs = [];
 
    @override
   void initState() {
     super.initState();
     databaseService = Provider.of<DatabaseService>(context, listen: false);
     getStreaks();
+    getManifest();
   }
 
   void updateSelectedDate(DateTime newDate) {
     setState(() => selectedDate = newDate);
-    print(selectedDate);
   }
 
   Future<void> getStreaks() async {
@@ -44,6 +46,24 @@ class _HomeRouteState extends State<HomeRoute> {
         (streak) => streak.streakName == 'Best streak'
       ).first.streakValue;
     });
+  }
+
+  Future<void> getManifest() async {
+    List<DatabaseRow> rows = await databaseService.select(DatabaseQuery(tableName: 'manifest'));
+    setState(() {
+      activities = rows.cast<Manifest>();
+    });
+    for (Manifest activity in activities) {
+      List<DatabaseRow> logs = await databaseService.select(
+        DatabaseQuery(
+          tableName: 'activity_log', 
+          whereStatement: 'activity_id = ?',
+          whereArgs: [activity.activityId.toString()]
+        )
+      );
+      List<ActivityLog> activityLogs = logs.cast<ActivityLog>();
+      print(activityLogs);
+    }
   }
 
   @override
