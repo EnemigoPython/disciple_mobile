@@ -4,11 +4,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 class StreakIndicator extends StatelessWidget {
   final Color flameColor;
   final String streakText;
+  final int? streakValue;
 
-  const StreakIndicator({super.key, required this.flameColor, required this.streakText});
+  const StreakIndicator({
+    super.key, 
+    required this.flameColor, 
+    required this.streakText, 
+    required this.streakValue
+  });
 
   @override
   Widget build(BuildContext context) {
+    String streakValueString = streakValue != null ? streakValue.toString() : '?';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.blueGrey,
@@ -25,7 +32,7 @@ class StreakIndicator extends StatelessWidget {
               width: 24,
               height: 24,
             ),
-            Text('$streakText: 3', style: TextStyle(color: Colors.white, fontSize: 14)),
+            Text('$streakText: $streakValueString', style: TextStyle(color: Colors.white, fontSize: 14)),
           ]
         ),
       ),

@@ -20,7 +20,7 @@ void main() {
   // https://docs.flutter.dev/cookbook/persistence/sqlite
   runApp(
     Provider(
-      create: (_) => SqfliteHelper(),
+      create: (_) => DatabaseService(),
       child: discipleApp()
     )
   );

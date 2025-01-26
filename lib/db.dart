@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:sqflite/sqflite.dart';
 
-class SqfliteHelper {
+class DatabaseService {
   static Database? _database;
 
   Future<Database> get database async {
@@ -14,16 +16,28 @@ class SqfliteHelper {
     return _database!;
   }
 
-  static Future<Database> getConnection() async {  
+  static Future<Database> getConnection() async {
     // Avoid errors caused by flutter upgrade.
     // Importing 'package:flutter/widgets.dart' is required.
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Set the path to the database. Note: Using the `join` function from the
+    // `path` package is best practice to ensure the path is correctly
+    // constructed for each platform.
+    String path = 'disciple.db';
+
+    if (kIsWeb) {
+      // Change default factory on the web
+      databaseFactory = databaseFactoryFfiWeb;
+    } else {
+      path = join(await getDatabasesPath(), 'disciple.db');
+    }
     // Open the database and store the reference.
     return await openDatabase(
       // Set the path to the database. Note: Using the `join` function from the
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
-      join(await getDatabasesPath(), 'disciple.db'),
+      path,
       onCreate: (db, version) {
         return db.execute(
           '''
@@ -103,10 +117,14 @@ class SqfliteHelper {
 
 class DatabaseQuery {
   final String tableName;
-  final String whereStatement;
-  final List<String> whereArgs;
+  final String? whereStatement;
+  final List<String>? whereArgs;
 
-  DatabaseQuery(this.tableName, this.whereStatement, this.whereArgs);
+  DatabaseQuery({
+    required this.tableName, 
+    this.whereStatement, 
+    this.whereArgs
+  });
 }
 
 abstract class DatabaseRow {
@@ -115,6 +133,7 @@ abstract class DatabaseRow {
 
   DatabaseRow(this.tableName, this.columns);
 
+  // TODO: this implementation isn't working in query; need to rethink
   factory DatabaseRow.fromMap(Map<String, dynamic> map) {
     throw UnimplementedError('fromMap() must be implemented in subclass.');
   }

@@ -16,12 +16,25 @@ class HomeRoute extends StatefulWidget {
 }
 
 class _HomeRouteState extends State<HomeRoute> {
-  late SqfliteHelper database;
+  late DatabaseService databaseService;
+  int? currentStreakValue;
+  int? bestStreakValue;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    database = Provider.of<SqfliteHelper>(context, listen: false);
+    databaseService = Provider.of<DatabaseService>(context, listen: false);
+    getStreaks();
+  }
+
+  //  @override
+  // void initState() {
+  //   super.initState();
+  //   getStreaks();
+  // }
+
+  Future<List<DatabaseRow>> getStreaks() async {
+    return await databaseService.select(DatabaseQuery(tableName: 'streak'));
   }
 
   @override
@@ -41,8 +54,16 @@ class _HomeRouteState extends State<HomeRoute> {
                   child: Row(
                     spacing: 10,
                     children: <Widget> [
-                      StreakIndicator(flameColor: Colors.red, streakText: 'Current streak'),
-                      StreakIndicator(flameColor: Colors.cyan, streakText: 'Best streak'),
+                      StreakIndicator(
+                        flameColor: Colors.red, 
+                        streakText: 'Current streak', 
+                        streakValue: currentStreakValue
+                      ),
+                      StreakIndicator(
+                        flameColor: Colors.cyan, 
+                        streakText: 'Best streak', 
+                        streakValue: bestStreakValue
+                      ),
                     ]
                   ),
                 ),
