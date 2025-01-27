@@ -119,7 +119,7 @@ class DatabaseService {
 class DatabaseQuery {
   final String tableName;
   final String? whereStatement;
-  final List<String>? whereArgs;
+  final List<dynamic>? whereArgs;
 
   DatabaseQuery({
     required this.tableName, 

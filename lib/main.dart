@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'model/db.dart';
+import 'model/store.dart';
 import 'routes/home.dart';
 
 MaterialApp discipleApp() {
@@ -19,8 +20,11 @@ void main() {
   // https://github.com/tekartik/sqflite/blob/master/sqflite/doc/opening_db.md
   // https://docs.flutter.dev/cookbook/persistence/sqlite
   runApp(
-    Provider(
-      create: (_) => DatabaseService(),
+    MultiProvider(
+      providers: [
+        Provider<DatabaseService>(create: (_) => DatabaseService()),
+        Provider<ActivityStore>(create: (_) => ActivityStore()),
+      ],
       child: discipleApp()
     )
   );

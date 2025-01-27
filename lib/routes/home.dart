@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../model/db.dart';
+import '../model/store.dart';
 import '../routes/log.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/date_picker.dart';
@@ -17,6 +18,7 @@ class HomeRoute extends StatefulWidget {
 
 class _HomeRouteState extends State<HomeRoute> {
   late DatabaseService databaseService;
+  late ActivityStore activityStore;
   int? currentStreakValue;
   int? bestStreakValue;
   DateTime selectedDate = DateTime.now();
@@ -27,6 +29,7 @@ class _HomeRouteState extends State<HomeRoute> {
   void initState() {
     super.initState();
     databaseService = Provider.of<DatabaseService>(context, listen: false);
+    activityStore = Provider.of<ActivityStore>(context, listen: false);
     getStreaks();
     getManifest();
   }
@@ -54,15 +57,17 @@ class _HomeRouteState extends State<HomeRoute> {
       activities = rows.cast<Manifest>();
     });
     for (Manifest activity in activities) {
-      List<DatabaseRow> logs = await databaseService.select(
+      List<DatabaseRow> rows = await databaseService.select(
         DatabaseQuery(
           tableName: 'activity_log', 
-          whereStatement: 'activity_id = ?',
-          whereArgs: [activity.activityId.toString()]
+          whereStatement: 'activity_id = ? AND date_logged LIKE ?',
+          whereArgs: [
+            activity.activityId, 
+            '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}%'
+          ]
         )
       );
-      List<ActivityLog> activityLogs = logs.cast<ActivityLog>();
-      print(activityLogs);
+      List<ActivityLog> activityLogs = rows.cast<ActivityLog>();
     }
   }
 
