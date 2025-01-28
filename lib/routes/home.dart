@@ -71,7 +71,7 @@ class _HomeRouteState extends State<HomeRoute> {
           whereStatement: 'activity_id = ? AND date_logged LIKE ?',
           whereArgs: [
             activity.activityId, 
-            ActivityStore.dateKey(selectedDate)
+            '${ActivityStore.dateKey(selectedDate)}%'
           ]
         )
       );

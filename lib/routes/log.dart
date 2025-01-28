@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../model/db.dart';
 import '../model/store.dart';
+import '../widgets/add_log_modal.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/log_row.dart';
 
@@ -62,7 +63,7 @@ class _LogRouteState extends State<LogRoute> {
                 activityName: activityStore.manifest[index].activityName,
                 activityMinutes: activityStore.activities[
                   activityStore.manifest[index].activityName
-                ] ?? 0,
+                ]!,
               ),
             );
           },
@@ -71,14 +72,35 @@ class _LogRouteState extends State<LogRoute> {
             color: Colors.grey[300],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Map<String, int> updatedActivities = activityStore.saveCache();
-            insertActivityLogs(updatedActivities);
-            Navigator.pop(context);
-          },
-          tooltip: 'Return to Home',
-          child: Icon(Icons.arrow_back_rounded),
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[  
+            FloatingActionButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AddLogModal();
+                  },
+                );
+              },
+              tooltip: 'Add Activity',
+              heroTag: 'add',
+              child: Icon(Icons.add),
+            ),
+            SizedBox(width: 16),
+            FloatingActionButton(
+              onPressed: () async {
+                Map<String, int> updatedActivities = activityStore.cache;
+                insertActivityLogs(updatedActivities);
+                activityStore.saveCache();
+                Navigator.pop(context);
+              },
+              tooltip: 'Return to Home',
+              heroTag: 'home',
+              child: Icon(Icons.arrow_back_rounded),
+            ),
+          ]
         ),
       ),
     );

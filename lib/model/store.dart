@@ -6,11 +6,15 @@ class ActivityStore {
   Map<String, int> _activitiesCache = {};
   String _selectedDate = dateKey(DateTime.now());
 
-  static String dateKey(DateTime date) => '${date.year}-${date.month}-${date.day}';
+  static String padDate(int d) => d.toString().padLeft(2, '0');
+
+  static String dateKey(DateTime date) => '${date.year}-${padDate(date.month)}-${padDate(date.day)}';
 
   Map<String, int> get activities => _activities[_selectedDate]!;
 
   List<Manifest> get manifest => _activitiesManifest;
+
+  Map<String, int> get cache => _activitiesCache;
 
   void addManifest(List<Manifest> manifest) => _activitiesManifest = manifest;
 
@@ -40,14 +44,13 @@ class ActivityStore {
     return 0;
   }
 
-  void resetCache() => _activitiesCache = activities;
+  void resetCache() => _activitiesCache = Map.from(activities);
 
   void updateCache(String activityName, int activityMinutes) {
     _activitiesCache[activityName] = activityMinutes;
   }
 
-  Map<String, int> saveCache() {
-    _activities[_selectedDate] = _activitiesCache;
-    return _activities[_selectedDate]!;
+  void saveCache() {
+    _activities[_selectedDate] = Map.from(_activitiesCache);
   }
 }
