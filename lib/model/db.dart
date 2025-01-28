@@ -186,7 +186,7 @@ class Manifest extends DatabaseRow {
 }
 
 class Category extends DatabaseRow {
-  final int categoryId;
+  final int? categoryId;
   final String categoryName;
   final String categoryColour;
 
@@ -212,7 +212,7 @@ class Category extends DatabaseRow {
 }
 
 class ActivityLog extends DatabaseRow {
-  final int logId;
+  final int? logId;
   final int activityId;
   final DateTime dateLogged;
   final int minutes;

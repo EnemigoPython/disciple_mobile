@@ -22,10 +22,8 @@ class _HomeRouteState extends State<HomeRoute> {
   int? currentStreakValue;
   int? bestStreakValue;
   DateTime selectedDate = DateTime.now();
-  List<Manifest> activities = [];
-  List<ActivityLog> activityLogs = [];
 
-   @override
+  @override
   void initState() {
     super.initState();
     databaseService = Provider.of<DatabaseService>(context, listen: false);
@@ -34,8 +32,10 @@ class _HomeRouteState extends State<HomeRoute> {
     getManifest();
   }
 
-  void updateSelectedDate(DateTime newDate) {
-    setState(() => selectedDate = newDate);
+  Future<void> updateSelectedDate(DateTime newDate) async {
+    selectedDate = newDate;
+    await getActivityData();
+    print('$selectedDate, ${activityStore.activities}');
   }
 
   Future<void> getStreaks() async {
@@ -53,21 +53,38 @@ class _HomeRouteState extends State<HomeRoute> {
 
   Future<void> getManifest() async {
     List<DatabaseRow> rows = await databaseService.select(DatabaseQuery(tableName: 'manifest'));
-    setState(() {
-      activities = rows.cast<Manifest>();
-    });
-    for (Manifest activity in activities) {
+    activityStore.addManifest(rows.cast<Manifest>());
+    getActivityData();
+  }
+
+  Future<void> getActivityData() async {
+    Map<String, int>? activitiesForDate = activityStore.getActivitiesForDate(
+      ActivityStore.dateKey(selectedDate)
+    );
+    if (activitiesForDate != null) {
+      return;
+    }
+    for (Manifest activity in activityStore.manifest) {
       List<DatabaseRow> rows = await databaseService.select(
         DatabaseQuery(
           tableName: 'activity_log', 
           whereStatement: 'activity_id = ? AND date_logged LIKE ?',
           whereArgs: [
             activity.activityId, 
-            '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}%'
+            ActivityStore.dateKey(selectedDate)
           ]
         )
       );
       List<ActivityLog> activityLogs = rows.cast<ActivityLog>();
+      int totalMinutes = activityLogs.fold<int>(
+        0, 
+        (previousValue, activityLog) => previousValue + activityLog.minutes
+      );
+      activityStore.addActivity(
+        ActivityStore.dateKey(selectedDate), 
+        activity.activityName, 
+        totalMinutes
+      );
     }
   }
 
