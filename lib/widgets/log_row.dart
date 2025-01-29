@@ -21,6 +21,7 @@ class _LogRowState extends State<LogRow> {
   late ActivityStore activityStore;
   late String activityName;
   late int activityMinutes;
+  bool isRecording = false;
 
   @override
   void initState() {
@@ -28,6 +29,43 @@ class _LogRowState extends State<LogRow> {
     activityStore = Provider.of<ActivityStore>(context, listen: false);
     activityName = widget.activityName;
     activityMinutes = widget.activityMinutes;
+  }
+
+  Row recordingRow() {
+    return isRecording ? Row(
+      spacing: 5,
+      children: [
+        Text('Stop'),
+        IconButton(
+          icon: Icon(Icons.stop), 
+          onPressed: () {
+            int recordedMinutes = activityStore.stopRecording(activityName);
+            setState(() {
+              isRecording = !isRecording;
+              activityMinutes += recordedMinutes;
+              activityStore.updateCache(activityName, activityMinutes);
+            });
+          }
+        ),
+      ],
+    ) : Row(
+      spacing: 5,
+      children: [
+        Text(
+          'Record',
+          style: TextStyle(color: Colors.red),
+        ),
+        IconButton(
+          icon: Icon(Icons.fiber_manual_record, color: Colors.red), 
+          onPressed: () {
+            activityStore.startRecording(activityName);
+            setState(() {
+              isRecording = !isRecording;
+            });
+          }
+        ),
+      ],
+    );
   }
 
   @override
@@ -42,6 +80,10 @@ class _LogRowState extends State<LogRow> {
           ],
         ),
         Spacer(),
+        Container(
+          margin: EdgeInsets.only(right: 15),
+          child: recordingRow(),
+        ),
         IconButton(
           icon: Icon(Icons.remove),
           color: Colors.red,
@@ -56,7 +98,7 @@ class _LogRowState extends State<LogRow> {
         Row(
           children: [
             SizedBox(
-              width: 50,
+              width: 30,
               child: TextField(
                 decoration: null,
                 textAlign: TextAlign.center,

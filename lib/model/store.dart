@@ -5,6 +5,7 @@ class ActivityStore {
   List<Manifest> _activitiesManifest = [];
   Map<String, int> _activitiesCache = {};
   String _selectedDate = dateKey(DateTime.now());
+  Map<String, DateTime> _activitiesRecordingCache = {};
 
   static String padDate(int d) => d.toString().padLeft(2, '0');
 
@@ -52,5 +53,15 @@ class ActivityStore {
 
   void saveCache() {
     _activities[_selectedDate] = Map.from(_activitiesCache);
+  }
+
+  void startRecording(String activityName) {
+    _activitiesRecordingCache[activityName] = DateTime.now();
+  }
+
+  int stopRecording(String activityName) {
+    DateTime startTime = _activitiesRecordingCache[activityName]!;
+    _activitiesRecordingCache.remove(activityName);
+    return DateTime.now().difference(startTime).inMinutes;
   }
 }
