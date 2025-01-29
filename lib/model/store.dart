@@ -5,19 +5,27 @@ class ActivityStore {
   List<Manifest> _activitiesManifest = [];
   Map<String, int> _activitiesCache = {};
   String _selectedDate = dateKey(DateTime.now());
-  Map<String, DateTime> _activitiesRecordingCache = {};
+  final Map<String, DateTime> _activitiesRecordingCache = {};
 
   static String padDate(int d) => d.toString().padLeft(2, '0');
 
   static String dateKey(DateTime date) => '${date.year}-${padDate(date.month)}-${padDate(date.day)}';
 
-  Map<String, int> get activities => _activities[_selectedDate]!;
+  Map<String, int> get activities => _activities[_selectedDate] ?? {};
 
   List<Manifest> get manifest => _activitiesManifest;
 
   Map<String, int> get cache => _activitiesCache;
 
   void addManifest(List<Manifest> manifest) => _activitiesManifest = manifest;
+
+  void addActivityToManifest(Manifest activity) {
+    _activitiesManifest.add(activity);
+    _activitiesCache[activity.activityName] = 0;
+    for (String key in _activities.keys) {
+      _activities[key]![activity.activityName] = 0;
+    }
+  }
 
   void addActivity(String dateString, String activityName, int minutes) {
     if (!_activities.containsKey(dateString)) {
@@ -64,4 +72,6 @@ class ActivityStore {
     _activitiesRecordingCache.remove(activityName);
     return DateTime.now().difference(startTime).inMinutes;
   }
+
+  bool nameIsDuplicate(String activityName) => activities.containsKey(activityName);
 }

@@ -17,7 +17,6 @@ class LogRoute extends StatefulWidget {
 class _LogRouteState extends State<LogRoute> {
   late DatabaseService databaseService;
   late ActivityStore activityStore;
-  final List<String> items = List.generate(20, (index) => "Row $index");
 
   @override
   void initState() {
@@ -46,6 +45,17 @@ class _LogRouteState extends State<LogRoute> {
       });
       await databaseService.insert(activityLog);
     }
+  }
+
+  Future<void> onAddActivity(String activityName) async {
+    Manifest newActivity = Manifest.fromMap({
+      'activity_name': activityName,
+      'date_added': DateTime.now().toString(),
+    });
+    int activityId = await databaseService.insert(newActivity);
+    newActivity.activityId = activityId;
+    activityStore.addActivityToManifest(newActivity);
+    setState(() => {});  // force redraw when activity added
   }
 
   @override
@@ -80,7 +90,7 @@ class _LogRouteState extends State<LogRoute> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return AddLogModal();
+                    return AddLogModal(onAddActivity: onAddActivity);
                   },
                 );
               },

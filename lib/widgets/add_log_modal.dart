@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../model/store.dart';
 
 class AddLogModal extends StatefulWidget {
-  const AddLogModal({super.key});
+  final Function(String) onAddActivity;
+
+  const AddLogModal({super.key, required this.onAddActivity});
 
   @override
   State<AddLogModal> createState() => _AddLogModalState();
 }
 
 class _AddLogModalState extends State<AddLogModal> {
+  late ActivityStore activityStore;
+  String _activityName = '';
   IconData _selectedIcon = Icons.directions_run;
   Color _selectedColour = Colors.black;
+
   List<IconData> icons = [
     Icons.directions_run,
     Icons.directions_walk,
@@ -65,6 +73,12 @@ class _AddLogModalState extends State<AddLogModal> {
     Colors.pink,
     Colors.orange,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    activityStore = Provider.of<ActivityStore>(context, listen: false);
+  }
 
   void _showIconDialog() {
     showDialog(
@@ -145,6 +159,11 @@ class _AddLogModalState extends State<AddLogModal> {
                     border: OutlineInputBorder(),
                     hintText: 'Enter Activity Name',
                   ),
+                  onChanged: (text) {
+                    setState(() {
+                      _activityName = text;
+                    });
+                  }
                 ),
               ),
             ],
@@ -155,6 +174,12 @@ class _AddLogModalState extends State<AddLogModal> {
         TextButton(
           child: Text('Save'),
           onPressed: () {
+            bool nameIsDuplicate = activityStore.nameIsDuplicate(_activityName);
+            if (_activityName == '' || nameIsDuplicate) {
+              print('invalid');
+              return;
+            }
+            widget.onAddActivity(_activityName);
             Navigator.of(context).pop();
           },
         ),

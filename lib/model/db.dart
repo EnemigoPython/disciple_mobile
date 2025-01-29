@@ -152,7 +152,7 @@ abstract class DatabaseRow {
 }
 
 class Manifest extends DatabaseRow {
-  final int? activityId;
+  int? activityId;
   final String activityName;
   final DateTime dateAdded;
   final int? categoryId;
@@ -212,7 +212,7 @@ class Category extends DatabaseRow {
 }
 
 class ActivityLog extends DatabaseRow {
-  final int? logId;
+  int? logId;
   final int activityId;
   final DateTime dateLogged;
   final int minutes;
@@ -242,7 +242,7 @@ class ActivityLog extends DatabaseRow {
 }
 
 class AppSettings extends DatabaseRow {
-  final int settingId;
+  int? settingId;
   final String settingName;
   final String settingValue;
 

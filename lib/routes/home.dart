@@ -21,7 +21,7 @@ class _HomeRouteState extends State<HomeRoute> {
   late ActivityStore activityStore;
   int? currentStreakValue;
   int? bestStreakValue;
-  DateTime selectedDate = DateTime.now();
+  String selectedDate = ActivityStore.dateKey(DateTime.now());
 
   @override
   void initState() {
@@ -33,7 +33,7 @@ class _HomeRouteState extends State<HomeRoute> {
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
-    selectedDate = newDate;
+    selectedDate = ActivityStore.dateKey(newDate);
     await getActivityData();
     print('$selectedDate, ${activityStore.activities}');
   }
@@ -59,7 +59,7 @@ class _HomeRouteState extends State<HomeRoute> {
 
   Future<void> getActivityData() async {
     Map<String, int>? activitiesForDate = activityStore.getActivitiesForDate(
-      ActivityStore.dateKey(selectedDate)
+      selectedDate
     );
     if (activitiesForDate != null) {
       return;
@@ -71,7 +71,7 @@ class _HomeRouteState extends State<HomeRoute> {
           whereStatement: 'activity_id = ? AND date_logged LIKE ?',
           whereArgs: [
             activity.activityId, 
-            '${ActivityStore.dateKey(selectedDate)}%'
+            '$selectedDate%'
           ]
         )
       );
@@ -81,7 +81,7 @@ class _HomeRouteState extends State<HomeRoute> {
         (previousValue, activityLog) => previousValue + activityLog.minutes
       );
       activityStore.addActivity(
-        ActivityStore.dateKey(selectedDate), 
+        selectedDate, 
         activity.activityName, 
         totalMinutes
       );
