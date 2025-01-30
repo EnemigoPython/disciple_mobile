@@ -52,7 +52,9 @@ class _HomeRouteState extends State<HomeRoute> {
   }
 
   Future<void> getManifest() async {
+    print('a');
     List<DatabaseRow> rows = await databaseService.select(DatabaseQuery(tableName: 'manifest'));
+    print('b');
     activityStore.addManifest(rows.cast<Manifest>());
     getActivityData();
   }

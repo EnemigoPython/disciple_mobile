@@ -46,13 +46,9 @@ class DatabaseService {
             activity_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             activity_name TEXT, 
             date_added TEXT, 
-            category_id INTEGER, 
-            target_minutes INTEGER
-          );
-          CREATE TABLE category(
-            category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-            category_name TEXT, 
-            category_colour TEXT
+            target_minutes INTEGER,
+            colour INT,
+            icon INT
           );
           CREATE TABLE activity_log(
             log_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
@@ -87,7 +83,7 @@ class DatabaseService {
       where: query.whereStatement, 
       whereArgs: query.whereArgs
     );
-    return rows.map((row) => DatabaseRow.fromMap( query.tableName, row)).toList();
+    return rows.map((row) => DatabaseRow.fromMap(query.tableName, row)).toList();
   }
 
   Future<int> insert(DatabaseRow row) async {
@@ -138,8 +134,6 @@ abstract class DatabaseRow {
     switch (tableName) {
       case 'manifest':
         return Manifest.fromMap(map);
-      case 'category':
-        return Category.fromMap(map);
       case 'activity_log':
         return ActivityLog.fromMap(map);
       case 'app_settings':
@@ -155,58 +149,38 @@ class Manifest extends DatabaseRow {
   int? activityId;
   final String activityName;
   final DateTime dateAdded;
-  final int? categoryId;
   final int? targetMinutes;
+  final Color colour;
+  final IconData icon;
 
   Manifest(
     this.activityId, 
     this.activityName, 
     this.dateAdded, 
-    this.categoryId, 
-    this.targetMinutes
+    this.targetMinutes,
+    this.colour,
+    this.icon 
   ) : 
   super('manifest', {
     'activity_id': activityId, 
     'activity_name': activityName, 
     'date_added': dateAdded.toString(), 
-    'category_id': categoryId, 
-    'target_minutes': targetMinutes
+    'target_minutes': targetMinutes,
+    // TODO: change serialization
+    'colour': colour.value,
+    'icon': icon.codePoint
   });
 
   @override
   factory Manifest.fromMap(Map<String, dynamic> map) {
+    print(map);
     return Manifest(
       map['activity_id'], 
       map['activity_name'], 
       DateTime.parse(map['date_added']), 
-      map['category_id'], 
-      map['target_minutes']
-    );
-  }
-}
-
-class Category extends DatabaseRow {
-  final int? categoryId;
-  final String categoryName;
-  final String categoryColour;
-
-  Category(
-    this.categoryId, 
-    this.categoryName, 
-    this.categoryColour
-  ) : 
-  super('category', {
-    'category_id': categoryId, 
-    'category_name': categoryName, 
-    'category_colour': categoryColour
-  });
-
-  @override
-  factory Category.fromMap(Map<String, dynamic> map) {
-    return Category(
-      map['category_id'], 
-      map['category_name'], 
-      map['category_colour']
+      map['target_minutes'],
+      Color(map['colour']),
+      IconData(map['icon'])
     );
   }
 }

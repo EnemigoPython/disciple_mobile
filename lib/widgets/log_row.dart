@@ -5,11 +5,15 @@ import '../model/store.dart';
 
 class LogRow extends StatefulWidget {
   final String activityName;
+  final Color activityColour;
+  final IconData activityIcon;
   final int activityMinutes;
 
   const LogRow({
     super.key, 
-    required this.activityName, 
+    required this.activityName,
+    required this.activityColour,
+    required this.activityIcon,
     required this.activityMinutes
   });
 
@@ -20,6 +24,8 @@ class LogRow extends StatefulWidget {
 class _LogRowState extends State<LogRow> {
   late ActivityStore activityStore;
   late String activityName;
+  late Color activityColour;
+  late IconData activityIcon;
   late int activityMinutes;
   bool isRecording = false;
 
@@ -28,6 +34,8 @@ class _LogRowState extends State<LogRow> {
     super.initState();
     activityStore = Provider.of<ActivityStore>(context, listen: false);
     activityName = widget.activityName;
+    activityColour = widget.activityColour;
+    activityIcon = widget.activityIcon;
     activityMinutes = widget.activityMinutes;
   }
 

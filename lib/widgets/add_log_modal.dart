@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../model/store.dart';
 
 class AddLogModal extends StatefulWidget {
-  final Function(String) onAddActivity;
+  final Function(String, IconData, Color) onAddActivity;
 
   const AddLogModal({super.key, required this.onAddActivity});
 
@@ -78,6 +78,15 @@ class _AddLogModalState extends State<AddLogModal> {
   void initState() {
     super.initState();
     activityStore = Provider.of<ActivityStore>(context, listen: false);
+  }
+
+  bool isValidInput() {
+    return _activityName.isNotEmpty && !activityStore.nameIsDuplicate(_activityName);
+  }
+
+  void saveActivity() {
+    widget.onAddActivity(_activityName, _selectedIcon, _selectedColour);
+    Navigator.of(context).pop();
   }
 
   void _showIconDialog() {
@@ -158,6 +167,9 @@ class _AddLogModalState extends State<AddLogModal> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Enter Activity Name',
+                    errorText: activityStore.nameIsDuplicate(_activityName) ? 
+                      'Activity name already exists' : 
+                      null
                   ),
                   onChanged: (text) {
                     setState(() {
@@ -172,16 +184,8 @@ class _AddLogModalState extends State<AddLogModal> {
       ),
       actions: [
         TextButton(
+          onPressed: () => isValidInput() ? saveActivity() : null,
           child: Text('Save'),
-          onPressed: () {
-            bool nameIsDuplicate = activityStore.nameIsDuplicate(_activityName);
-            if (_activityName == '' || nameIsDuplicate) {
-              print('invalid');
-              return;
-            }
-            widget.onAddActivity(_activityName);
-            Navigator.of(context).pop();
-          },
         ),
         TextButton(
           child: Text('Cancel'),

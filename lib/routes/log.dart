@@ -47,10 +47,12 @@ class _LogRouteState extends State<LogRoute> {
     }
   }
 
-  Future<void> onAddActivity(String activityName) async {
+  Future<void> onAddActivity(String activityName, IconData icon, Color colour) async {
     Manifest newActivity = Manifest.fromMap({
       'activity_name': activityName,
       'date_added': DateTime.now().toString(),
+      'colour': colour,
+      'icon': icon
     });
     int activityId = await databaseService.insert(newActivity);
     newActivity.activityId = activityId;
@@ -71,6 +73,8 @@ class _LogRouteState extends State<LogRoute> {
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
               child: LogRow(
                 activityName: activityStore.manifest[index].activityName,
+                activityColour: activityStore.manifest[index].colour,
+                activityIcon: activityStore.manifest[index].icon,
                 activityMinutes: activityStore.activities[
                   activityStore.manifest[index].activityName
                 ]!,
