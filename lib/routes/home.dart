@@ -19,6 +19,7 @@ class HomeRoute extends StatefulWidget {
 class _HomeRouteState extends State<HomeRoute> {
   late DatabaseService databaseService;
   late ActivityStore activityStore;
+  Map<String, int> activities = {};
   int? currentStreakValue;
   int? bestStreakValue;
   String selectedDate = ActivityStore.dateKey(DateTime.now());
@@ -62,6 +63,7 @@ class _HomeRouteState extends State<HomeRoute> {
       selectedDate
     );
     if (activitiesForDate != null) {
+      setState(() => activities = activityStore.activities);
       return;
     }
     for (Manifest activity in activityStore.manifest) {
@@ -86,6 +88,7 @@ class _HomeRouteState extends State<HomeRoute> {
         totalMinutes
       );
     }
+    setState(() => activities = activityStore.activities);
   }
 
   @override
@@ -120,7 +123,7 @@ class _HomeRouteState extends State<HomeRoute> {
                 ),
                 AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: RadarGraph(), 
+                  child: RadarGraph(activities: activities), 
                 ),
                 Flexible(
                   fit: FlexFit.tight,
