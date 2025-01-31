@@ -51,8 +51,9 @@ class _LogRouteState extends State<LogRoute> {
     Manifest newActivity = Manifest.fromMap({
       'activity_name': activityName,
       'date_added': DateTime.now().toString(),
-      'colour': colour,
-      'icon': icon
+      'colour': DatabaseRow.colorToHex(colour),
+      'icon_code_point': icon.codePoint,
+      'icon_font_family': icon.fontFamily
     });
     int activityId = await databaseService.insert(newActivity);
     newActivity.activityId = activityId;

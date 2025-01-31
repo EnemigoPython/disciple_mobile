@@ -83,7 +83,7 @@ class _LogRowState extends State<LogRow> {
         Row(
           spacing: 5,
           children: [
-            Icon(Icons.directions_run),
+            Icon(activityIcon, color: activityColour),
             Text(activityName),
           ],
         ),

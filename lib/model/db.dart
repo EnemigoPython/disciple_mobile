@@ -47,8 +47,9 @@ class DatabaseService {
             activity_name TEXT, 
             date_added TEXT, 
             target_minutes INTEGER,
-            colour INT,
-            icon INT
+            colour TEXT,
+            icon_code_point INTEGER,
+            icon_font_family TEXT
           );
           CREATE TABLE activity_log(
             log_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
@@ -130,6 +131,30 @@ abstract class DatabaseRow {
 
   DatabaseRow(this.tableName, this.columns);
 
+  static String colorToHex(Color color) {
+    return '#'
+        '${(color.a * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+        '${(color.r * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+        '${(color.g * 255).toInt().toRadixString(16).padLeft(2, '0')}'
+        '${(color.b * 255).toInt().toRadixString(16).padLeft(2, '0')}';
+  }
+
+  static Color hexToColor(String hex) {
+    hex = hex.replaceFirst('#', '');
+    double a = int.parse(hex.substring(0, 2), radix: 16) / 255.0;
+    double r = int.parse(hex.substring(2, 4), radix: 16) / 255.0;
+    double g = int.parse(hex.substring(4, 6), radix: 16) / 255.0;
+    double b = int.parse(hex.substring(6, 8), radix: 16) / 255.0;
+
+    return Color.fromRGBO(
+      (r * 255).toInt(),
+      (g * 255).toInt(),
+      (b * 255).toInt(),
+      a,
+    );
+  }
+
+
   factory DatabaseRow.fromMap(String tableName, Map<String, dynamic> map) {
     switch (tableName) {
       case 'manifest':
@@ -166,21 +191,20 @@ class Manifest extends DatabaseRow {
     'activity_name': activityName, 
     'date_added': dateAdded.toString(), 
     'target_minutes': targetMinutes,
-    // TODO: change serialization
-    'colour': colour.value,
-    'icon': icon.codePoint
+    'colour': DatabaseRow.colorToHex(colour),
+    'icon_code_point': icon.codePoint,
+    'icon_font_family': icon.fontFamily
   });
 
   @override
   factory Manifest.fromMap(Map<String, dynamic> map) {
-    print(map);
     return Manifest(
       map['activity_id'], 
       map['activity_name'], 
       DateTime.parse(map['date_added']), 
       map['target_minutes'],
-      Color(map['colour']),
-      IconData(map['icon'])
+      DatabaseRow.hexToColor(map['colour']),
+      IconData(map['icon_code_point'], fontFamily: map['icon_font_family'])
     );
   }
 }

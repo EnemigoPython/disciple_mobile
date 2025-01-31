@@ -22,6 +22,9 @@ class ActivityStore {
   void addActivityToManifest(Manifest activity) {
     _activitiesManifest.add(activity);
     _activitiesCache[activity.activityName] = 0;
+    if (_activities.keys.isEmpty) {
+      _activities[dateKey(DateTime.now())] = {};
+    }
     for (String key in _activities.keys) {
       _activities[key]![activity.activityName] = 0;
     }
