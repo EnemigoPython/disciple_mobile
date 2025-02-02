@@ -58,7 +58,6 @@ class _LogRouteState extends State<LogRoute> {
     int activityId = await databaseService.insert(newActivity);
     newActivity.activityId = activityId;
     activityStore.addActivityToManifest(newActivity);
-    setState(() => {});  // force redraw when activity added
   }
 
   @override
@@ -67,25 +66,30 @@ class _LogRouteState extends State<LogRoute> {
       home: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: customAppBar(context),
-        body: ListView.separated(
-          itemCount: activityStore.manifest.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-              child: LogRow(
-                activityName: activityStore.manifest[index].activityName,
-                activityColour: activityStore.manifest[index].colour,
-                activityIcon: activityStore.manifest[index].icon,
-                activityMinutes: activityStore.activities[
-                  activityStore.manifest[index].activityName
-                ]!,
+        body: ListenableBuilder(
+          listenable: activityStore,
+          builder: (BuildContext context, Widget? child) { 
+            return ListView.separated(
+              itemCount: activityStore.manifest.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                  child: LogRow(
+                    activityName: activityStore.manifest[index].activityName,
+                    activityColour: activityStore.manifest[index].colour,
+                    activityIcon: activityStore.manifest[index].icon,
+                    activityMinutes: activityStore.activities[
+                      activityStore.manifest[index].activityName
+                    ]!,
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) => Divider(
+                thickness: 1,
+                color: Colors.grey[300],
               ),
-            );
-          },
-          separatorBuilder: (context, index) => Divider(
-            thickness: 1,
-            color: Colors.grey[300],
-          ),
+            ); 
+          }
         ),
         floatingActionButton: Row(
           mainAxisAlignment: MainAxisAlignment.end,

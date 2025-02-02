@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
+
 import '../model/db.dart';
 
-class ActivityStore {
+class ActivityStore with ChangeNotifier {
   final Map<String, Map<String, int>> _activities = {};
   List<Manifest> _activitiesManifest = [];
   Map<String, int> _activitiesCache = {};
@@ -28,6 +30,7 @@ class ActivityStore {
     for (String key in _activities.keys) {
       _activities[key]![activity.activityName] = 0;
     }
+    notifyListeners();
   }
 
   void addActivity(String dateString, String activityName, int minutes) {

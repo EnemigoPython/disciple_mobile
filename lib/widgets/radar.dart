@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import '../model/store.dart';
 
 class RadarGraph extends StatefulWidget {
-  final Map<String, int> activities;
+  final Function() onUpdateGraph;
 
-  const RadarGraph({super.key, required this.activities});
+  const RadarGraph({super.key, required this.onUpdateGraph});
 
   @override
   State<RadarGraph> createState() => _RadarGraphState();
@@ -15,14 +15,11 @@ class RadarGraph extends StatefulWidget {
 
 class _RadarGraphState extends State<RadarGraph> {
   late ActivityStore activityStore;
-  Map<String, int> activities = {};
 
   @override
   void initState() {
     super.initState();
     activityStore = Provider.of<ActivityStore>(context, listen: false);
-    activities = widget.activities;
-    print(activities);
   }
   
   @override 

@@ -17,13 +17,11 @@ MaterialApp discipleApp() {
 }
 
 void main() {
-  // https://github.com/tekartik/sqflite/blob/master/sqflite/doc/opening_db.md
-  // https://docs.flutter.dev/cookbook/persistence/sqlite
   runApp(
     MultiProvider(
       providers: [
         Provider<DatabaseService>(create: (_) => DatabaseService()),
-        Provider<ActivityStore>(create: (_) => ActivityStore()),
+        ChangeNotifierProvider<ActivityStore>(create: (_) => ActivityStore()),
       ],
       child: discipleApp()
     )
