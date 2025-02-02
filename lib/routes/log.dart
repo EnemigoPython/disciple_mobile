@@ -114,6 +114,7 @@ class _LogRouteState extends State<LogRoute> {
                 insertActivityLogs(updatedActivities);
                 activityStore.saveCache();
                 Navigator.pop(context);
+                activityStore.refresh();
               },
               tooltip: 'Return to Home',
               heroTag: 'home',

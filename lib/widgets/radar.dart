@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 import '../model/store.dart';
 
 class RadarGraph extends StatefulWidget {
-  final Function() onUpdateGraph;
-
-  const RadarGraph({super.key, required this.onUpdateGraph});
+  const RadarGraph({super.key});
 
   @override
   State<RadarGraph> createState() => _RadarGraphState();
@@ -27,22 +25,29 @@ class _RadarGraphState extends State<RadarGraph> {
     return ListenableBuilder(
       listenable: activityStore,
       builder: (BuildContext context, Widget? child) {
-        return activityStore.manifest.length < 3 ? 
-        Container() : 
-        RadarChart(
-          RadarChartData(
-            dataSets: [
-              RadarDataSet(
-                dataEntries: activityStore.activities.entries.map((entry) {
-                  print('draw');
-                  return RadarEntry(value: entry.value.toDouble());
-                }).toList(),
-                borderColor: Theme.of(context).colorScheme.inversePrimary,
-                // fillColor: Theme.of(context).colorScheme.secondary,
-            )]
+        return Container(
+          margin: EdgeInsets.only(top: 20),
+          child: activityStore.manifest.length < 3 ? null :
+          RadarChart(
+            RadarChartData(
+              getTitle: (index, angle) {
+                return RadarChartTitle(
+                  text: activityStore.activities.keys.toList()[index],
+                  angle: angle,
+                );
+              },
+              dataSets: [
+                RadarDataSet(
+                  dataEntries: activityStore.activities.values.map((value) {
+                    return RadarEntry(value: value.toDouble());
+                  }).toList(),
+                  borderColor: Theme.of(context).colorScheme.inversePrimary,
+                  // fillColor: Theme.of(context).colorScheme.secondary,
+              )]
+            ),
+            duration: Duration(milliseconds: 0),
+            curve: Curves.linear,
           ),
-          duration: Duration(milliseconds: 300),
-          curve: Curves.linear,
         );
       }
     );

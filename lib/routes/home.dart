@@ -121,7 +121,7 @@ class _HomeRouteState extends State<HomeRoute> {
                 ),
                 AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: RadarGraph(onUpdateGraph: () {}), 
+                  child: RadarGraph(), 
                 ),
                 Flexible(
                   fit: FlexFit.tight,
