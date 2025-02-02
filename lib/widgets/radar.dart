@@ -24,24 +24,27 @@ class _RadarGraphState extends State<RadarGraph> {
   
   @override 
   Widget build(BuildContext context) {
-    return RadarChart(
-      RadarChartData(
-        dataSets: [
-          RadarDataSet(
-            dataEntries: [
-              RadarEntry(value: 1),
-              RadarEntry(value: 2),
-              RadarEntry(value: 3),
-              RadarEntry(value: 4),
-              RadarEntry(value: 5),
-              RadarEntry(value: 9),
-            ],
-            borderColor: Theme.of(context).colorScheme.inversePrimary,
-            // fillColor: Theme.of(context).colorScheme.secondary,
-        )]
-      ),
-      duration: Duration(milliseconds: 150),
-      curve: Curves.linear,
+    return ListenableBuilder(
+      listenable: activityStore,
+      builder: (BuildContext context, Widget? child) {
+        return activityStore.manifest.length < 3 ? 
+        Container() : 
+        RadarChart(
+          RadarChartData(
+            dataSets: [
+              RadarDataSet(
+                dataEntries: activityStore.activities.entries.map((entry) {
+                  print('draw');
+                  return RadarEntry(value: entry.value.toDouble());
+                }).toList(),
+                borderColor: Theme.of(context).colorScheme.inversePrimary,
+                // fillColor: Theme.of(context).colorScheme.secondary,
+            )]
+          ),
+          duration: Duration(milliseconds: 300),
+          curve: Curves.linear,
+        );
+      }
     );
   }
 }

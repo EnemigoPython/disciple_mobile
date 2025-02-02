@@ -86,6 +86,7 @@ class _HomeRouteState extends State<HomeRoute> {
         totalMinutes
       );
     }
+    activityStore.refresh();
   }
 
   @override
