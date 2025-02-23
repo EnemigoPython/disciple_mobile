@@ -21,8 +21,17 @@ class DatabaseService {
     // Importing 'package:flutter/widgets.dart' is required.
     WidgetsFlutterBinding.ensureInitialized();
 
+    // UNCOMMENT for cleaning up old DB paths as necessary
+    // List<String> oldDbPaths = [
+    //   'disciple.db',
+    // ];
+    // for (String path in oldDbPaths) {
+    //   String _path = join(await getDatabasesPath(), path);
+    //   await deleteDatabase(_path);
+    // }
+
     // Default web database path
-    String path = 'disciple5.db';
+    String path = 'disciple.db';
 
     if (kIsWeb) {
       // Change default factory on the web
@@ -33,7 +42,7 @@ class DatabaseService {
       // constructed for each platform.
 
       // TODO: clean up old db paths
-      path = join(await getDatabasesPath(), 'disciple5.db');
+      path = join(await getDatabasesPath(), 'disciple.db');
     }
     // Open the database and store the reference.
     return await openDatabase(
