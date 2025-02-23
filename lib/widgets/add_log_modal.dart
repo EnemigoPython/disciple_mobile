@@ -162,7 +162,7 @@ class _AddLogModalState extends State<AddLogModal> {
                 onPressed: _showIconDialog,
               ),
               SizedBox(
-                width: 250,
+                width: 150,
                 child: TextField(
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),

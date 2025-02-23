@@ -19,6 +19,11 @@ class _RadarGraphState extends State<RadarGraph> {
     super.initState();
     activityStore = Provider.of<ActivityStore>(context, listen: false);
   }
+
+  bool shouldNotDrawGraph() {
+    return activityStore.manifest.length < 3 || 
+      activityStore.manifest.length != activityStore.activities.length;
+  }
   
   @override 
   Widget build(BuildContext context) {
@@ -26,23 +31,29 @@ class _RadarGraphState extends State<RadarGraph> {
       listenable: activityStore,
       builder: (BuildContext context, Widget? child) {
         return Container(
-          margin: EdgeInsets.only(top: 20),
-          child: activityStore.manifest.length < 3 ? null :
+          margin: EdgeInsets.only(top: 30),
+          child: shouldNotDrawGraph() ? null :
           RadarChart(
             RadarChartData(
-              getTitle: (index, angle) {
+              getTitle: (int index, double angle) {
+                String titleText = '';
+                try {
+                  titleText = activityStore.activities.keys.toList()[index];
+                } on RangeError {
+                  titleText = '';
+                }
                 return RadarChartTitle(
-                  text: activityStore.activities.keys.toList()[index],
+                  text: titleText,
                   angle: angle,
                 );
               },
               dataSets: [
                 RadarDataSet(
-                  dataEntries: activityStore.activities.values.map((value) {
+                  dataEntries: activityStore.activities.values.map<RadarEntry>((value) {
                     return RadarEntry(value: value.toDouble());
                   }).toList(),
                   borderColor: Theme.of(context).colorScheme.inversePrimary,
-                  // fillColor: Theme.of(context).colorScheme.secondary,
+                  fillColor: Theme.of(context).colorScheme.secondary.withAlpha(20),
               )]
             ),
             duration: Duration(milliseconds: 0),

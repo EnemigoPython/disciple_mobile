@@ -41,6 +41,7 @@ class _LogRouteState extends State<LogRoute> {
       ActivityLog activityLog = ActivityLog.fromMap({
         'activity_id': activityId,
         'date_logged': DateTime.now().toString(),
+        'date_logged_for': DateTime.parse(activityStore.selectedDate).toString(),
         'minutes': newMinutes,
       });
       await databaseService.insert(activityLog);

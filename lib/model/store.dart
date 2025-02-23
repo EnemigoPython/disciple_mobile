@@ -19,6 +19,8 @@ class ActivityStore with ChangeNotifier {
 
   Map<String, int> get cache => _activitiesCache;
 
+  String get selectedDate => _selectedDate;
+
   void refresh() => notifyListeners();
 
   void addManifest(List<Manifest> manifest) => _activitiesManifest = manifest;
@@ -45,7 +47,6 @@ class ActivityStore with ChangeNotifier {
   Map<String, int>? getActivitiesForDate(String dateString) {
     _selectedDate = dateString;
     if (_activities.containsKey(dateString)) {
-      notifyListeners();
       return _activities[dateString]!;
     }
     return null;

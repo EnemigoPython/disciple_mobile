@@ -35,7 +35,7 @@ class _HomeRouteState extends State<HomeRoute> {
   Future<void> updateSelectedDate(DateTime newDate) async {
     selectedDate = ActivityStore.dateKey(newDate);
     await getActivityData();
-    print('$selectedDate, ${activityStore.activities}');
+    // print('$selectedDate, ${activityStore.activities}');
   }
 
   Future<void> getStreaks() async {
@@ -62,13 +62,14 @@ class _HomeRouteState extends State<HomeRoute> {
       selectedDate
     );
     if (activitiesForDate != null) {
+      activityStore.refresh();
       return;
     }
     for (Manifest activity in activityStore.manifest) {
       List<DatabaseRow> rows = await databaseService.select(
         DatabaseQuery(
           tableName: 'activity_log', 
-          whereStatement: 'activity_id = ? AND date_logged LIKE ?',
+          whereStatement: 'activity_id = ? AND date_logged_for LIKE ?',
           whereArgs: [
             activity.activityId, 
             '$selectedDate%'
@@ -106,16 +107,16 @@ class _HomeRouteState extends State<HomeRoute> {
                   child: Row(
                     spacing: 10,
                     children: <Widget> [
-                      StreakIndicator(
-                        flameColor: Colors.red, 
-                        streakText: 'Current streak', 
-                        streakValue: currentStreakValue
-                      ),
-                      StreakIndicator(
-                        flameColor: Colors.cyan, 
-                        streakText: 'Best streak', 
-                        streakValue: bestStreakValue
-                      ),
+                      // StreakIndicator(
+                      //   flameColor: Colors.red, 
+                      //   streakText: 'Current streak', 
+                      //   streakValue: currentStreakValue
+                      // ),
+                      // StreakIndicator(
+                      //   flameColor: Colors.cyan, 
+                      //   streakText: 'Best streak', 
+                      //   streakValue: bestStreakValue
+                      // ),
                     ]
                   ),
                 ),

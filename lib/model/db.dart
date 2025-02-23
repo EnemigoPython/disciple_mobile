@@ -22,7 +22,7 @@ class DatabaseService {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Default web database path
-    String path = 'disciple.db';
+    String path = 'disciple5.db';
 
     if (kIsWeb) {
       // Change default factory on the web
@@ -31,17 +31,15 @@ class DatabaseService {
       // Set the path to the database. Note: Using the `join` function from the
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
-      path = join(await getDatabasesPath(), 'disciple.db');
+
+      // TODO: clean up old db paths
+      path = join(await getDatabasesPath(), 'disciple5.db');
     }
     // Open the database and store the reference.
     return await openDatabase(
-      // Set the path to the database. Note: Using the `join` function from the
-      // `path` package is best practice to ensure the path is correctly
-      // constructed for each platform.
       path,
-      onCreate: (db, version) {
-        return db.execute(
-          '''
+      onCreate: (db, version) async {
+        await db.execute('''
           CREATE TABLE manifest(
             activity_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             activity_name TEXT, 
@@ -50,30 +48,36 @@ class DatabaseService {
             colour TEXT,
             icon_code_point INTEGER,
             icon_font_family TEXT
-          );
+          );''');
+        await db.execute('''
           CREATE TABLE activity_log(
             log_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             activity_id INTEGER, 
             date_logged TEXT, 
+            date_logged_for TEXT,
             minutes INTEGER
-          );
+          );''');
+        await db.execute('''
           CREATE TABLE app_settings(
             setting_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
             setting_name TEXT, 
             setting_value TEXT
-          );
+          );''');
+        await db.execute('''
           CREATE TABLE streak(
             streak_name TEXT, 
             streak_value INTEGER
-          );
+          );''');
+        await db.execute('''
           INSERT INTO streak (streak_name, streak_value) VALUES ('Current streak', 0);
+          ''');
+        await db.execute('''
           INSERT INTO streak (streak_name, streak_value) VALUES ('Best streak', 0);
-          ''',
-        );
+          ''');
       },
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.
-      version: 1,
+      version: 3,
     );
   }
 
@@ -213,18 +217,21 @@ class ActivityLog extends DatabaseRow {
   int? logId;
   final int activityId;
   final DateTime dateLogged;
+  final DateTime dateLoggedFor;
   final int minutes;
 
   ActivityLog(
     this.logId, 
     this.activityId, 
     this.dateLogged, 
+    this.dateLoggedFor,
     this.minutes
   ) : 
   super('activity_log', {
     'log_id': logId, 
     'activity_id': activityId, 
     'date_logged': dateLogged.toString(), 
+    'date_logged_for': dateLoggedFor.toString(),
     'minutes': minutes
   });
 
@@ -234,6 +241,7 @@ class ActivityLog extends DatabaseRow {
       map['log_id'], 
       map['activity_id'], 
       DateTime.parse(map['date_logged']), 
+      DateTime.parse(map['date_logged_for']), 
       map['minutes']
     );
   }
